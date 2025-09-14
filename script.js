@@ -8,9 +8,7 @@ let paused = false;
 window.addEventListener("keydown", evt => {
 	if (evt.code == "KeyP") {
 		paused = !paused;
-	}
-
-	if (game) {
+	} else if (game) {
 		game.keys.add(evt.code);
 	}
 });
@@ -21,23 +19,34 @@ window.addEventListener("keyup", evt => {
 	}
 });
 
-loadLevelFromURL("levels/sandbox.png").then(level => {
-	game = new Game(canvasEl, level);
-
-	const player = localStorage.getItem("player");
-	if (player) {
-		const p = JSON.parse(player);
-		game.player.x = p.x;
-		game.player.y = p.y;
-		game.player.angle = p.angle;
+/**
+ * @param {string} name
+ */
+function loadLevel(name) {
+	let health = null;
+	if (game) {
+		health = game.player.health;
 	}
-});
+
+	game = null;
+	loadLevelFromURL(`levels/${name}`).then(level => {
+		game = new Game(canvasEl, level, loadLevel);
+		if (health) {
+			game.player.health = health;
+		}
+	});
+}
+
+loadLevel("intro");
 
 setInterval(() => {
 	if (game) {
 		if (!paused) {
 			game.update(1 / 60);
 		}
+	}
+
+	if (game) {
 		game.render();
 	}
 }, 1000 / 60);

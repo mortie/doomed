@@ -19,6 +19,11 @@ class Player {
 		const FRICTION = 5;
 		const ROTATE_SPEED = 2;
 
+		if (this.dead) {
+			this.health = 10;
+			game.levelTransition("intro");
+		}
+
 		const keys = game.keys;
 
 		if (keys.has("ArrowLeft")) {

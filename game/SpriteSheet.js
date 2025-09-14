@@ -79,3 +79,26 @@ class SpritePlayer {
 		this.sheet.draw(ctx, dx, dy, dist, tile[0], tile[1]);
 	}
 }
+
+class StaticSprite {
+	/**
+	 * @param {SpriteSheet} sheet
+	 * @param {number} tx
+	 * @param {number} ty
+	 */
+	constructor(sheet, tx, ty) {
+		this.sheet = sheet;
+		this.tx = tx;
+		this.ty = ty;
+	}
+
+	/**
+	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {number} dx
+	 * @param {number} dy
+	 * @param {number} dist
+	 */
+	draw(ctx, dx, dy, dist) {
+		this.sheet.draw(ctx, dx, dy, dist, this.tx, this.ty);
+	}
+}

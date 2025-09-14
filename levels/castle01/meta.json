@@ -1,0 +1,18 @@
+{
+	"colors": {
+		"sky": "#63552f",
+		"ground": "#2e2c28"
+	},
+	"specials": {
+		"0": {
+			"type": "player",
+			"angle": -180
+		},
+		"1": "zomboid",
+		"2": {
+			"type": "level-transition",
+			"to": "sandbox",
+			"sprite": "ladder"
+		}
+	}
+}

@@ -1,0 +1,21 @@
+{
+	"colors": {
+		"sky": "cyan",
+		"ground": "gray"
+	},
+	"specials": {
+		"0": {
+			"type": "player",
+			"angle": -90
+		},
+		"1": "zomboid",
+		"2": {
+			"type": "level-transition",
+			"to": "castle01"
+		},
+		"3": {
+			"type": "sprite",
+			"sprite": "skull-banner"
+		}
+	}
+}

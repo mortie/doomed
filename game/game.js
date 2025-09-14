@@ -1,13 +1,7 @@
-const SPECIAL_PLAYER = 0;
-const SPECIAL_ENEMY = 1;
-
 const SCREEN_WIDTH = 640;
 const SCREEN_HEIGHT = 360;
 const SCREEN_FOV = 80 * (Math.PI / 180);
-const RENDER_DIST = 200;
 const RENDER_STEPS = 50;
-const SKY_COLOR = "cyan";
-const GROUND_COLOR = "gray";
 
 const BLACK = new Uint8ClampedArray([0, 0, 0, 0xff]);
 const SCREEN_DIST = 1.0 / Math.tan(SCREEN_FOV / 2);
@@ -16,16 +10,17 @@ const SCREEN_DIST = 1.0 / Math.tan(SCREEN_FOV / 2);
  * @typedef {Object} Entity
  * @property {number} x
  * @property {number} y
- * @property {boolean} dead
+ * @property {boolean?} dead
  * @property {boolean?} dying
- * @property {function} update
+ * @property {function?} update
  * @property {function?} draw
  * @property {function?} hurt
  */
 
 /**
  * @typedef {Object} Special
- * @property {number} type
+ * @property {string} type
+ * @property {object?} params
  * @property {number} x
  * @property {number} y
  */
@@ -42,8 +37,9 @@ const SCREEN_DIST = 1.0 / Math.tan(SCREEN_FOV / 2);
 class LevelData {
 	/**
 	 * @param {HTMLImageElement} img
+	 * @param {any} meta
 	 */
-	constructor(img) {
+	constructor(img, meta) {
 		img.crossOrigin = "anonymous";
 		this.width = img.width;
 		this.height = img.height;
@@ -55,6 +51,13 @@ class LevelData {
 		const data = ctx.getImageData(0, 0, img.width, img.height);
 		this.data = data.data;
 
+		/** @type string */
+		this.skyColor = meta.colors.sky;
+		/** @type string */
+		this.groundColor = meta.colors.ground;
+
+		const specialSpecs = meta.specials;
+
 		/** @type {Special[]} */
 		this.specials = [];
 		for (let y = 0; y < this.height; ++y) {
@@ -62,8 +65,23 @@ class LevelData {
 				let data = this.at(x, y);
 				// FFxxFFFF represents specials
 				if (data[0] == 0xff && data[2] == 0xff && data[3] == 0xff) {
-					const type = data[1];
-					this.specials.push({x, y, type});
+					const id = data[1];
+					const spec = specialSpecs[id];
+					if (!spec) {
+						console.warn("Unknown spec:", id);
+						continue;
+					}
+
+					const special = {x, y};
+					if (typeof spec == "string") {
+						special.type = spec;
+						special.params = {};
+					} else {
+						special.type = spec.type;
+						special.params = spec;
+					}
+
+					this.specials.push(special);
 					data[0] = 0x00;
 					data[1] = 0x00;
 					data[2] = 0x00;
@@ -71,6 +89,19 @@ class LevelData {
 				}
 			}
 		}
+	}
+
+	/**
+	 * @param {number} x
+	 * @param {number} y
+	 */
+	maybeAt(x, y) {
+		if (x >= this.width || x < 0 || y >= this.height || y < 0) {
+			return null;
+		}
+
+		const offset = ((this.width * y) + x) * 4;
+		return this.data.subarray(offset, offset + 4);
 	}
 
 	/**
@@ -100,12 +131,16 @@ class LevelData {
 	 * @param {number} angle
 	 * @returns {RayHit | null}
 	 */
-	raycast(x, y, angle) {
+	raycast(x, y, dx, dy, len = NaN, max = Infinity) {
+		if (isNaN(len)) {
+			len = Math.hypot(dx, dy);
+		}
+
+		dx = dx / (len * RENDER_STEPS);
+		dy = dy / (len * RENDER_STEPS);
 		let cx = x + 0.5;
 		let cy = y + 0.5;
-		const dx = Math.sin(angle) / RENDER_STEPS
-		const dy = -Math.cos(angle) / RENDER_STEPS;
-		const iters = RENDER_DIST * RENDER_STEPS;
+		const iters = max * RENDER_STEPS;
 		x = NaN;
 		y = NaN;
 		for (let i = 0; i < iters; ++i) {
@@ -119,7 +154,11 @@ class LevelData {
 
 			x = nx;
 			y = ny;
-			const data = this.at(x, y);
+			const data = this.maybeAt(x, y);
+			if (!data) {
+				return null;
+			}
+
 			if (data[3] < 0x80) {
 				continue;
 			}
@@ -140,28 +179,36 @@ class LevelData {
  * @param {string} url
  * @returns {Promise<LevelData>}
 */
-function loadLevelFromURL(url) {
-	return new Promise((resolve, reject) => {
+async function loadLevelFromURL(url) {
+	/** @type {Promise<HTMLImageElement>} */
+	const imagePromise = new Promise((resolve, reject) => {
 		const img = document.createElement("img");
 
 		img.onload = () => {
-			resolve(new LevelData(img));
+			resolve(img);
 		};
 
 		img.onerror = reject;
 
-		img.src = url;
+		img.src = `${url}/level.png`;
 	});
+
+	const metaPromise = fetch(`${url}/meta.json`).then(res => res.json());
+
+	const [image, meta] = await Promise.all([imagePromise, metaPromise]);
+	return new LevelData(image, meta);
 }
 
 class Game {
 	/**
 	 * @param {HTMLCanvasElement} canvas
 	 * @param {LevelData} level
+	 * @param {(name: string) => void} transition
 	 */
-	constructor(canvas, level) {
+	constructor(canvas, level, transition) {
 		this.ctx = canvas.getContext("2d");
 		this.level = level;
+		this.levelTransition = transition;
 
 		/** @type {Player */
 		this.player = new Player();
@@ -173,18 +220,42 @@ class Game {
 		this.keys = new Set();
 
 		for (const s of level.specials) {
-			if (s.type == SPECIAL_PLAYER) {
-				this.player.x = s.x;
-				this.player.y = s.y;
-			} else if (s.type == SPECIAL_ENEMY) {
-				this.entities.push(new Enemy(s.x, s.y));
-			} else {
-				console.warn("Unknown special:", s);
-			}
+			this.handleSpecial(s);
 		}
 
 		/** @type {number[]} */
 		this.depthBuffer = new Array(SCREEN_WIDTH).fill(0);
+	}
+
+	/**
+	 * @param {Special} s
+	*/
+	handleSpecial(s) {
+		switch (s.type) {
+		case "player":
+			this.player.x = s.x;
+			this.player.y = s.y;
+			this.player.angle = (s.params.angle || 0) * (Math.PI / 180);
+			break;
+
+		case "zomboid":
+			this.entities.push(new Zomboid(s.x, s.y));
+			break;
+
+		case "level-transition":
+			this.entities.push(new LevelTransition(s.x, s.y, s.params.to));
+			if (s.params.sprite) {
+				this.entities.push(new Sprite(s.x, s.y, s.params.sprite, 0));
+			}
+			break;
+
+		case "sprite":
+			this.entities.push(new Sprite(s.x, s.y, s.params.sprite));
+			break;
+
+		default:
+			console.warn("Unknown special:", s);
+		}
 	}
 
 	render() {
@@ -196,9 +267,9 @@ class Game {
 		this.ctx.imageSmoothingEnabled = false;
 
 		// Render "skybox"
-		this.ctx.fillStyle = SKY_COLOR;
+		this.ctx.fillStyle = this.level.skyColor;
 		this.ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT / 2);
-		this.ctx.fillStyle = GROUND_COLOR;
+		this.ctx.fillStyle = this.level.groundColor;
 		this.ctx.fillRect(0, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT / 2);
 
 		const player = this.player;
@@ -208,7 +279,9 @@ class Game {
 			const ray_angle = Math.atan2(column, SCREEN_DIST);
 			const angle = ray_angle + player.angle;
 
-			const hit = this.level.raycast(player.x, player.y, angle);
+			const dx = Math.sin(angle);
+			const dy = -Math.cos(angle);
+			const hit = this.level.raycast(player.x, player.y, dx, dy, 1);
 			if (!hit) {
 				this.depthBuffer[x] = Infinity;
 				continue;
@@ -238,7 +311,7 @@ class Game {
 			}
 
 			const real_dist = Math.hypot(player.x - entity.x, player.y - entity.y);
-			if (real_dist >= this.depthBuffer[x]) {
+			if (real_dist - 0.25 >= this.depthBuffer[x]) {
 				continue;
 			}
 
@@ -277,7 +350,9 @@ class Game {
 				}
 			}
 
-			entity.update(this, dt);
+			if (entity.update) {
+				entity.update(this, dt);
+			}
 		}
 	}
 }

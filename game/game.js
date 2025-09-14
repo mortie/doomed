@@ -40,7 +40,6 @@ class LevelData {
 	 * @param {any} meta
 	 */
 	constructor(img, meta) {
-		img.crossOrigin = "anonymous";
 		this.width = img.width;
 		this.height = img.height;
 		const canvas = document.createElement("canvas");

@@ -10,6 +10,7 @@ const SKY_COLOR = "cyan";
 const GROUND_COLOR = "gray";
 
 const BLACK = new Uint8ClampedArray([0, 0, 0, 0xff]);
+const SCREEN_DIST = 1.0 / Math.tan(SCREEN_FOV / 2);
 
 /**
  * @typedef {Object} Entity
@@ -203,7 +204,8 @@ class Game {
 		const player = this.player;
 
 		for (let x = 0; x < SCREEN_WIDTH; ++x) {
-			const ray_angle = ((x / SCREEN_WIDTH) - 0.5) * SCREEN_FOV;
+			const column = (x / SCREEN_WIDTH) * 2 - 1;
+			const ray_angle = Math.atan2(column, SCREEN_DIST);
 			const angle = ray_angle + player.angle;
 
 			const hit = this.level.raycast(player.x, player.y, angle);
@@ -212,9 +214,10 @@ class Game {
 				continue;
 			}
 
+			this.depthBuffer[x] = hit.dist;
+
 			const A = Math.PI / 2 - Math.abs(ray_angle);
 			const dist = Math.sin(A) * hit.dist;
-			this.depthBuffer[x] = dist;
 			const height = (5 / dist) * SCREEN_HEIGHT;
 			const startY = (SCREEN_HEIGHT - height) / 2;
 			this.ctx.fillStyle = `rgb(${hit.r}, ${hit.g}, ${hit.b})`;
@@ -235,12 +238,12 @@ class Game {
 			}
 
 			const real_dist = Math.hypot(player.x - entity.x, player.y - entity.y);
-			const A = Math.PI / 2 - Math.abs(ray_angle);
-			const dist = Math.sin(A) * real_dist;
-			if (dist >= this.depthBuffer[x]) {
+			if (real_dist >= this.depthBuffer[x]) {
 				continue;
 			}
 
+			const A = Math.PI / 2 - Math.abs(ray_angle);
+			const dist = Math.sin(A) * real_dist;
 			renderEntities.push({entity, x, dist});
 		}
 

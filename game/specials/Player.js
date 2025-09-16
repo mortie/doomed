@@ -15,14 +15,9 @@ class Player {
 	 * @param {number} dt
 	 */
 	update(game, dt) {
-		const MOVE_SPEED = 40;
-		const FRICTION = 5;
-		const ROTATE_SPEED = 2;
-
-		if (this.dead) {
-			this.health = 10;
-			game.levelTransition("intro");
-		}
+		const MOVE_SPEED = 180;
+		const FRICTION = 10;
+		const ROTATE_SPEED = 3.5;
 
 		const keys = game.keys;
 
@@ -62,7 +57,7 @@ class Player {
 			const dy = -1 * Math.cos(a);
 			game.entities.push(new Projectile(
 				this.x, this.y, dx * 20, dy * 20, 0, this));
-			this.shootTimeout = 1;
+			this.shootTimeout = 0.5;
 		}
 		this.shootTimeout -= dt;
 
@@ -73,6 +68,7 @@ class Player {
 		this.health -= 1;
 		if (this.health <= 0) {
 			this.dead = true;
+			this.health = 10;
 		}
 	}
 }

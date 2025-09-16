@@ -10,17 +10,17 @@ const SCREEN_DIST = 1.0 / Math.tan(SCREEN_FOV / 2);
  * @typedef {Object} Entity
  * @property {number} x
  * @property {number} y
- * @property {boolean?} dead
- * @property {boolean?} dying
- * @property {function?} update
- * @property {function?} draw
- * @property {function?} hurt
+ * @property {boolean} [dead]
+ * @property {boolean} [dying]
+ * @property {function} [update]
+ * @property {function} [draw]
+ * @property {function} [hurt]
  */
 
 /**
  * @typedef {Object} Special
  * @property {string} type
- * @property {object?} params
+ * @property {Object.<string, any>} params
  * @property {number} x
  * @property {number} y
  */
@@ -31,8 +31,15 @@ const SCREEN_DIST = 1.0 / Math.tan(SCREEN_FOV / 2);
  * @property {number} r
  * @property {number} g
  * @property {number} b
- * @property {number} a
  */
+
+/**
+ * @typedef {Object} LevelEntry
+ * @property {number} x
+ * @property {number} y
+ * @property {number} [angle]
+ */
+
 
 class LevelData {
 	/**
@@ -46,6 +53,10 @@ class LevelData {
 		canvas.width = img.width;
 		canvas.height = img.height;
 		const ctx = canvas.getContext("2d");
+		if (!ctx) {
+			throw new Error("Failed to get canvas context");
+		}
+
 		ctx.drawImage(img, 0, 0);
 		const data = ctx.getImageData(0, 0, img.width, img.height);
 		this.data = data.data;
@@ -71,7 +82,8 @@ class LevelData {
 						continue;
 					}
 
-					const special = {x, y};
+					/** @type Special */
+					const special = {x, y, type: "", params: {}};
 					if (typeof spec == "string") {
 						special.type = spec;
 						special.params = {};
@@ -127,7 +139,10 @@ class LevelData {
 	/**
 	 * @param {number} x
 	 * @param {number} y
-	 * @param {number} angle
+	 * @param {number} dx
+	 * @param {number} dy
+	 * @param {number} len
+	 * @param {number} max
 	 * @returns {RayHit | null}
 	 */
 	raycast(x, y, dx, dy, len = NaN, max = Infinity) {
@@ -202,21 +217,28 @@ class Game {
 	/**
 	 * @param {HTMLCanvasElement} canvas
 	 * @param {LevelData} level
-	 * @param {(name: string) => void} transition
+	 * @param {Set<String>} keys
+	 * @param {(name: string?, entry?: string) => void} transition
 	 */
-	constructor(canvas, level, transition) {
+	constructor(canvas, level, keys, transition) {
+		this.canvas = canvas;
 		this.ctx = canvas.getContext("2d");
+		if (!this.ctx) {
+			throw new Error("Failed to get canvas context");
+		}
+
 		this.level = level;
+		this.keys = keys;
 		this.levelTransition = transition;
 
-		/** @type {Player */
+		/** @type {Map<String, LevelEntry>} */
+		this.levelEntries = new Map();
+
+		/** @type {Player} */
 		this.player = new Player();
 
 		/** @type {Entity[]} */
 		this.entities = [this.player];
-
-		/** @type {Set<string>*/
-		this.keys = new Set();
 
 		for (const s of level.specials) {
 			this.handleSpecial(s);
@@ -231,10 +253,13 @@ class Game {
 	*/
 	handleSpecial(s) {
 		switch (s.type) {
-		case "player":
-			this.player.x = s.x;
-			this.player.y = s.y;
-			this.player.angle = (s.params.angle || 0) * (Math.PI / 180);
+		case "entry":
+			const entry = {
+				x: s.x,
+				y: s.y,
+				angle: s.params.angle == null ? null : s.params.angle,
+			};
+			this.levelEntries.set(s.params.name || "default", entry);
 			break;
 
 		case "zomboid":
@@ -242,9 +267,10 @@ class Game {
 			break;
 
 		case "level-transition":
-			this.entities.push(new LevelTransition(s.x, s.y, s.params.to));
+			this.entities.push(new LevelTransition(
+				s.x, s.y, s.params.to, s.params.entry));
 			if (s.params.sprite) {
-				this.entities.push(new Sprite(s.x, s.y, s.params.sprite, 0));
+				this.entities.push(new Sprite(s.x, s.y, s.params.sprite));
 			}
 			break;
 
@@ -259,8 +285,8 @@ class Game {
 
 	render() {
 		// Clear screen
-		canvas.width = SCREEN_WIDTH;
-		canvas.height = SCREEN_HEIGHT;
+		this.canvas.width = SCREEN_WIDTH;
+		this.canvas.height = SCREEN_HEIGHT;
 
 		// This needs to be set every time for some reason
 		this.ctx.imageSmoothingEnabled = false;
@@ -296,6 +322,19 @@ class Game {
 			this.ctx.fillRect(x, startY, 1, height);
 		}
 
+		/**
+		 * @typedef {Object} Drawable
+		 * @property {function} draw
+		 */
+
+		/**
+		 * @typedef {Object} RenderEntity
+		 * @property {Drawable} entity
+		 * @property {number} x
+		 * @property {number} dist
+		 */
+
+		/** @type {RenderEntity[]} */
 		let renderEntities = [];
 		for (const entity of this.entities) {
 			if (!entity.draw) {
@@ -316,7 +355,8 @@ class Game {
 
 			const A = Math.PI / 2 - Math.abs(ray_angle);
 			const dist = Math.sin(A) * real_dist;
-			renderEntities.push({entity, x, dist});
+			const d = /** @type {Drawable} */ (entity);
+			renderEntities.push({entity: d, x, dist});
 		}
 
 		renderEntities.sort((a, b) => b.dist - a.dist);
@@ -335,8 +375,6 @@ class Game {
 	 * @param {number} dt
 	 */
 	update(dt) {
-		this.player.update(this, dt);
-
 		for (let i = 0; i < this.entities.length; ++i) {
 			let entity = this.entities[i];
 			if (entity.dead) {
@@ -344,14 +382,22 @@ class Game {
 					this.entities.pop();
 					break;
 				} else {
-					entity = this.entities.pop();
-					this.entities[i] = entity;
+					const e = this.entities.pop();
+					if (!e) {
+						return;
+					}
+
+					this.entities[i] = entity = e;
 				}
 			}
 
 			if (entity.update) {
 				entity.update(this, dt);
 			}
+		}
+
+		if (this.player.dead) {
+			this.levelTransition(null);
 		}
 	}
 }

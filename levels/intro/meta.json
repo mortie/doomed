@@ -5,17 +5,24 @@
 	},
 	"specials": {
 		"0": {
-			"type": "player",
+			"type": "entry",
 			"angle": -90
 		},
-		"1": "zomboid",
-		"2": {
-			"type": "level-transition",
-			"to": "castle01"
+		"1": {
+			"type": "entry",
+			"name": "castle-gate"
 		},
-		"3": {
+
+		"32": "zomboid",
+		"33": {
 			"type": "sprite",
 			"sprite": "skull-banner"
+		},
+
+		"64": {
+			"type": "level-transition",
+			"to": "castle01",
+			"entry": "main-gate"
 		}
 	}
 }

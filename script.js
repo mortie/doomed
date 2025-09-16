@@ -1,39 +1,90 @@
-/** @type {HTMLImageElement} */
-const canvasEl = document.getElementById("canvas");
+const canvasEl = /** @type {HTMLCanvasElement} */ (
+	document.getElementById("canvas"));
 
 /** @type {Game | null} */
 let game = null;
 let paused = false;
+/** @type {Set<string>} */
+const keys = new Set();
 
 window.addEventListener("keydown", evt => {
 	if (evt.code == "KeyP") {
 		paused = !paused;
-	} else if (game) {
-		game.keys.add(evt.code);
+	} else {
+		keys.add(evt.code);
 	}
 });
 
 window.addEventListener("keyup", evt => {
-	if (game) {
-		game.keys.delete(evt.code);
-	}
+	keys.delete(evt.code);
 });
 
+/** @type {Map<String, Game>} */
+const gamesByLevelName = new Map();
+
 /**
- * @param {string} name
+ * @param {Player} player
+ * @param {LevelEntry} entry
+ * @param {Player?} oldPlayer
  */
-function loadLevel(name) {
-	let health = null;
+function placePlayerAtEntry(player, entry, oldPlayer) {
+	if (oldPlayer) {
+		player.health = oldPlayer.health;
+	}
+
+	if (oldPlayer != null && entry.angle == null) {
+		player.angle = oldPlayer.angle;
+	} else {
+		player.angle = (entry.angle || 0) * (Math.PI / 180);
+	}
+
+	player.x = entry.x;
+	player.y = entry.y;
+}
+
+/**
+ * @param {String?} name
+ * @param {String} entryName
+ */
+function loadLevel(name, entryName = "default") {
+	if (!name) {
+		name = "intro";
+		gamesByLevelName.clear();
+	}
+
+	console.log("Load", name, "@", entryName);
+
+	/** @type {Player?} */
+	let oldPlayer = null;
 	if (game) {
-		health = game.player.health;
+		oldPlayer = game.player;
+	}
+
+	const existingGame = gamesByLevelName.get(name);
+	if (existingGame) {
+		const entry = existingGame.levelEntries.get(entryName);
+		if (!entry) {
+			console.warn("Missing level entry:", entryName);
+			return;
+		}
+
+		game = existingGame;
+		placePlayerAtEntry(existingGame.player, entry, oldPlayer);
+		return;
 	}
 
 	game = null;
 	loadLevelFromURL(`levels/${name}`).then(level => {
-		game = new Game(canvasEl, level, loadLevel);
-		if (health) {
-			game.player.health = health;
+		game = new Game(canvasEl, level, keys, loadLevel);
+		gamesByLevelName.set(name, game);
+
+		const entry = game.levelEntries.get(entryName);
+		if (!entry) {
+			console.warn("Missing level entry:", entryName);
+			return;
 		}
+
+		placePlayerAtEntry(game.player, entry, oldPlayer);
 	});
 }
 
@@ -53,7 +104,7 @@ setInterval(() => {
 
 setInterval(() => {
 	if (game) {
-		this.localStorage.setItem("player", JSON.stringify({
+		window.localStorage.setItem("player", JSON.stringify({
 			x: game.player.x,
 			y: game.player.y,
 			angle: game.player.angle,

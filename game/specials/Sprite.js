@@ -3,7 +3,6 @@ class Sprite {
 	 * @param {number} x
 	 * @param {number} y
 	 * @param {string} name
-	 * @param {number} offset
 	 */
 	constructor(x, y, name) {
 		this.x = x;

@@ -3,11 +3,14 @@ class LevelTransition {
 	 * @param {number} x
 	 * @param {number} y
 	 * @param {string} to
+	 * @param {string} [entry]
 	 */
-	constructor(x, y, to) {
+	constructor(x, y, to, entry) {
 		this.x = x;
 		this.y = y;
 		this.to = to;
+		this.entry = entry;
+		this.collidesWithPlayer = false;
 	}
 
 	/**
@@ -19,7 +22,9 @@ class LevelTransition {
 		const dy = game.player.y - this.y;
 		const sqDist = dx * dx + dy * dy;
 		if (sqDist <= 1.2) {
-			game.levelTransition(this.to);
+			game.player.vx = 0;
+			game.player.vy = 0;
+			game.levelTransition(this.to, this.entry);
 		}
 	}
 }

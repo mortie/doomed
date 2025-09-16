@@ -1,14 +1,10 @@
 {
 	"colors": {
-		"sky": "#63552f",
-		"ground": "#2e2c28"
+		"sky": "cyan",
+		"ground": "#63552f"
 	},
 	"specials": {
 		"0": {
-			"type": "entry",
-			"name": "main-gate"
-		},
-		"1": {
 			"type": "entry",
 			"name": "castle-ladder-1",
 			"angle": 180
@@ -18,12 +14,7 @@
 
 		"64": {
 			"type": "level-transition",
-			"to": "intro",
-			"entry": "castle-gate"
-		},
-		"65": {
-			"type": "level-transition",
-			"to": "rooftop",
+			"to": "castle01",
 			"entry": "castle-ladder-1",
 			"sprite": "ladder"
 		}

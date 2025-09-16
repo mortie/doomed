@@ -1,0 +1,20 @@
+{
+  "name": "doomed",
+  "version": "0.0.0",
+  "homepage": "https://github.com/mortie/doomed",
+  "bugs": {
+    "url": "https://github.com/mortie/doomed/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mortie/doomed.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "scripts": {
+    "check": ""
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2"
+  }
+}

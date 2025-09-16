@@ -1,6 +1,8 @@
 class SpriteSheet {
 	/**
 	 * @param {string} url
+	 * @param {number} tileWidth
+	 * @param {number} tileHeight
 	 */
 	constructor(url, tileWidth, tileHeight) {
 		this.img = document.createElement("img");
@@ -44,6 +46,7 @@ class SpriteSheet {
 class SpritePlayer {
 	/**
 	 * @param {SpriteSheet} sheet
+	 * @param {number} fps
 	 * @param {number[][]} sequence
 	 */
 	constructor(sheet, fps, sequence) {

@@ -1,21 +1,35 @@
-class Sprite {
+class Pickup {
 	/**
 	 * @param {number} x
 	 * @param {number} y
+	 * @param {string} name
 	 * @param {string} sprite
 	 */
-	constructor(x, y, sprite) {
+	constructor(x, y, name, sprite) {
 		this.x = x;
 		this.y = y;
+		this.name = name;
 		this.sprite = lookupSprite(sprite);
 	}
 
 	/**
-	 * @param {Game} _game
+	 * @param {Game} game
 	 * @param {number} dt
 	 */
-	update(_game, dt) {
+	update(game, dt) {
 		this.sprite.update(dt);
+
+		const dx = game.player.x - this.x;
+		const dy = game.player.y - this.y;
+		const sqDist = dx * dx + dy * dy;
+		if (sqDist <= 1.2) {
+			game.player.inventory.push(this.name);
+			this.dead = true;
+			game.textOverlay = {
+				timer: 5,
+				text: "Picked up " + this.name,
+			};
+		}
 	}
 
 	/**

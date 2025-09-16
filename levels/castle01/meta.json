@@ -13,6 +13,10 @@
 			"name": "castle-ladder-1",
 			"angle": 180
 		},
+		"2": {
+			"type": "entry",
+			"name": "castle-hallway-1"
+		},
 
 		"32": "zomboid",
 
@@ -26,6 +30,12 @@
 			"to": "rooftop",
 			"entry": "castle-ladder-1",
 			"sprite": "ladder"
+		},
+		"66": {
+			"type": "level-transition",
+			"to": "castle02",
+			"entry": "castle-hallway-1",
+			"requires": "blue key"
 		}
 	}
 }

@@ -96,6 +96,11 @@ class StaticSprite {
 	}
 
 	/**
+	 * @param {number} _dt
+	 */
+	update(_dt) {}
+
+	/**
 	 * @param {CanvasRenderingContext2D} ctx
 	 * @param {number} dx
 	 * @param {number} dy

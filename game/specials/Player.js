@@ -8,6 +8,8 @@ class Player {
 		this.angle = 0;
 		this.health = 10;
 		this.shootTimeout = 0;
+		/** @type {string[]} */
+		this.inventory = [];
 	}
 
 	/**

@@ -11,6 +11,15 @@
 		},
 
 		"32": "zomboid",
+		"33": {
+			"type": "sprite",
+			"sprite": "skull-banner"
+		},
+		"34": {
+			"type": "pickup",
+			"sprite": "blue-orb",
+			"name": "blue key"
+		},
 
 		"64": {
 			"type": "level-transition",

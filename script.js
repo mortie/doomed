@@ -30,6 +30,7 @@ const gamesByLevelName = new Map();
 function placePlayerAtEntry(player, entry, oldPlayer) {
 	if (oldPlayer) {
 		player.health = oldPlayer.health;
+		player.inventory = oldPlayer.inventory;
 	}
 
 	if (oldPlayer != null && entry.angle == null) {
@@ -54,10 +55,12 @@ function loadLevel(name, entryName = "default") {
 
 	console.log("Load", name, "@", entryName);
 
+	const oldGame = game;
+
 	/** @type {Player?} */
 	let oldPlayer = null;
-	if (game) {
-		oldPlayer = game.player;
+	if (oldGame) {
+		oldPlayer = oldGame.player;
 	}
 
 	const existingGame = gamesByLevelName.get(name);
@@ -69,6 +72,9 @@ function loadLevel(name, entryName = "default") {
 		}
 
 		game = existingGame;
+		if (oldGame) {
+			game.textOverlay = oldGame.textOverlay;
+		}
 		placePlayerAtEntry(existingGame.player, entry, oldPlayer);
 		return;
 	}
@@ -84,11 +90,16 @@ function loadLevel(name, entryName = "default") {
 			return;
 		}
 
+		if (oldGame) {
+			game.textOverlay = oldGame.textOverlay;
+		}
 		placePlayerAtEntry(game.player, entry, oldPlayer);
 	});
 }
 
-loadLevel("intro");
+window.addEventListener("DOMContentLoaded", () => {
+	loadLevel(null);
+});
 
 setInterval(() => {
 	if (game) {

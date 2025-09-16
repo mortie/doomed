@@ -1,0 +1,20 @@
+{
+	"colors": {
+		"sky": "#63552f",
+		"ground": "#2e2c28"
+	},
+	"specials": {
+		"0": {
+			"type": "entry",
+			"name": "castle-hallway-1",
+		},
+
+		"32": "zomboid",
+
+		"64": {
+			"type": "level-transition",
+			"to": "castle01",
+			"entry": "castle-hallway-1"
+		}
+	}
+}

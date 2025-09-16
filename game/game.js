@@ -40,6 +40,11 @@ const SCREEN_DIST = 1.0 / Math.tan(SCREEN_FOV / 2);
  * @property {number} [angle]
  */
 
+/**
+ * @typedef {Object} TextOverlay
+ * @property {number} timer
+ * @property {string} text
+ */
 
 class LevelData {
 	/**
@@ -231,6 +236,9 @@ class Game {
 		this.keys = keys;
 		this.levelTransition = transition;
 
+		/** @type {TextOverlay?} */
+		this.textOverlay = null;
+
 		/** @type {Map<String, LevelEntry>} */
 		this.levelEntries = new Map();
 
@@ -267,15 +275,23 @@ class Game {
 			break;
 
 		case "level-transition":
-			this.entities.push(new LevelTransition(
-				s.x, s.y, s.params.to, s.params.entry));
+			const transition = new LevelTransition(
+				s.x, s.y, s.params.to, s.params.entry);
+			this.entities.push(transition);
 			if (s.params.sprite) {
 				this.entities.push(new Sprite(s.x, s.y, s.params.sprite));
+			}
+			if (s.params.requires) {
+				transition.requires = s.params.requires;
 			}
 			break;
 
 		case "sprite":
 			this.entities.push(new Sprite(s.x, s.y, s.params.sprite));
+			break;
+
+		case "pickup":
+			this.entities.push(new Pickup(s.x, s.y, s.params.name, s.params.sprite));
 			break;
 
 		default:
@@ -365,10 +381,20 @@ class Game {
 		}
 
 		const status = `HP: ${this.player.health}`;
+		this.ctx.font = "12px Arial";
 		this.ctx.fillStyle = "white";
 		this.ctx.fillText(status, 4, 12);
 		this.ctx.fillStyle = "black";
 		this.ctx.fillText(status, 5, 13);
+
+		if (this.textOverlay) {
+			const text = this.textOverlay.text;
+			this.ctx.font = "30px Arial";
+			this.ctx.fillStyle = "white";
+			this.ctx.fillText(text, 4, 42);
+			this.ctx.fillStyle = "black";
+			this.ctx.fillText(text, 5, 43);
+		}
 	}
 
 	/**
@@ -398,6 +424,13 @@ class Game {
 
 		if (this.player.dead) {
 			this.levelTransition(null);
+		}
+
+		if (this.textOverlay) {
+			this.textOverlay.timer -= dt;
+			if (this.textOverlay.timer <= 0) {
+				this.textOverlay = null;
+			}
 		}
 	}
 }

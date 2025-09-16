@@ -11,6 +11,9 @@ class LevelTransition {
 		this.to = to;
 		this.entry = entry;
 		this.collidesWithPlayer = false;
+
+		/** @type {string?} */
+		this.requires = null;
 	}
 
 	/**
@@ -21,7 +24,25 @@ class LevelTransition {
 		const dx = game.player.x - this.x;
 		const dy = game.player.y - this.y;
 		const sqDist = dx * dx + dy * dy;
-		if (sqDist <= 1.2) {
+		if (sqDist <= 1.6 * 1.6) {
+			if (this.requires != null) {
+				const item = game.player.inventory.indexOf(this.requires);
+				if (item < 0) {
+					game.textOverlay = {
+						timer: 5,
+						text: "Need " + this.requires,
+					};
+					return;
+				}
+
+				game.textOverlay = {
+					timer: 5,
+					text: "Used " + this.requires,
+				};
+				game.player.inventory.splice(item, 1);
+				this.requires = null;
+			}
+
 			game.player.vx = 0;
 			game.player.vy = 0;
 			game.levelTransition(this.to, this.entry);

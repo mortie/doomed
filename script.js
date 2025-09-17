@@ -122,3 +122,7 @@ setInterval(() => {
 		}));
 	}
 }, 1000);
+
+function enterFullscreen() {
+	canvasEl.requestFullscreen();
+}

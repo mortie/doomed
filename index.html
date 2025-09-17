@@ -13,15 +13,22 @@ body {
 	width: 100vw;
 }
 
-#credits {
-	text-align: right;
+#meta {
+	position: fixed;
+	bottom: 6px;
+	padding-left: 12px;
 	padding-right: 12px;
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+	box-sizing: border-box;
 }
 </style>
 	</head>
 	<body>
 		<canvas id="canvas"></canvas>
-		<div id="credits">
+		<div id="meta">
+			<a href="#" onclick="enterFullscreen()">Fullscreen</a>
 			<a href="credits.html" target="_blank">Credits</a>
 		</div>
 

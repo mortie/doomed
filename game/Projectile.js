@@ -40,15 +40,13 @@ class Projectile {
 		}
 
 		for (const entity of game.entities) {
-			if (entity == this.owner || entity instanceof Projectile || entity.dying) {
+			if (entity == this.owner || !entity.hurt || entity.dying) {
 				continue;
 			}
 
 			const dist = Math.hypot(this.x - entity.x, this.y - entity.y);
 			if (dist < 2) {
-				if (entity.hurt) {
-					entity.hurt();
-				}
+				entity.hurt();
 				this.dead = true;
 				return;
 			}

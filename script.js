@@ -67,6 +67,7 @@ function loadLevel(name, entryName = "default") {
 	if (!name) {
 		name = "intro";
 		gamesByLevelName.clear();
+		game = null;
 	}
 
 	const oldGame = game;

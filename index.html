@@ -1,19 +1,29 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<meta charset="utf-8">
 		<title>Doomed</title>
 <style>
+body {
+	margin: 0px;
+}
+
 #canvas {
 	image-rendering: pixelated;
-	position: absolute;
-	top: 0px;
-	left: 0px;
 	width: 100vw;
+}
+
+#credits {
+	text-align: right;
+	padding-right: 12px;
 }
 </style>
 	</head>
 	<body>
 		<canvas id="canvas"></canvas>
+		<div id="credits">
+			<a href="credits.html" target="_blank">Credits</a>
+		</div>
 
 		<script src="game/specials/LevelTransition.js"></script>
 		<script src="game/specials/Pickup.js"></script>

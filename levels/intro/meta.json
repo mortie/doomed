@@ -5,7 +5,8 @@
 	},
 	"entryText": [
 		"Infiltrate the Skull Squadron base",
-		"Steal the spectral core"
+		"Steal the spectral core",
+		"(WASD, ← →, enter)"
 	],
 	"specials": {
 		"00": {

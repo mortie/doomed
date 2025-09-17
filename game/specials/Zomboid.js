@@ -58,7 +58,7 @@ class Zomboid {
 		const hit = game.level.raycast(this.x, this.y, distX, distY, dist, dist);
 		const playerVisible = hit == null;
 
-		this.dist = dist * (playerVisible ? 1 : 0.25);
+		this.dist = dist * (playerVisible ? 1 : 2.5);
 
 		switch (this.state) {
 		case "idle":

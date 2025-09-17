@@ -3,26 +3,36 @@
 		"sky": "cyan",
 		"ground": "gray"
 	},
+	"entryText": [
+		"Infiltrate the Skull Squadron base",
+		"Steal the spectral core"
+	],
 	"specials": {
-		"0": {
+		"00": {
 			"type": "entry",
-			"angle": -90
+			"angle": 0
 		},
-		"1": {
+		"01": {
 			"type": "entry",
 			"name": "castle-gate"
 		},
 
-		"32": "zomboid",
-		"33": {
+		"20": "zomboid",
+		"21": {
 			"type": "sprite",
 			"sprite": "skull-banner"
 		},
 
-		"64": {
+		"40": {
 			"type": "level-transition",
 			"to": "castle01",
 			"entry": "main-gate"
+		},
+		"41": {
+			"type": "level-transition",
+			"to": "done",
+			"sprite": "chopper",
+			"requires": "spectral core"
 		}
 	}
 }

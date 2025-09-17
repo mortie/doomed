@@ -43,7 +43,7 @@ const SCREEN_DIST = 1.0 / Math.tan(SCREEN_FOV / 2);
 /**
  * @typedef {Object} TextOverlay
  * @property {number} timer
- * @property {string} text
+ * @property {string[]} lines
  */
 
 class LevelData {
@@ -62,6 +62,17 @@ class LevelData {
 			throw new Error("Failed to get canvas context");
 		}
 
+		/** @type {string[]?} */
+		this.entryText = null;
+		if (typeof meta.entryText == "string") {
+			this.entryText = [meta.entryText];
+		}  else if (meta.entryText instanceof Array) {
+			/** @type any[] */
+			const lines = meta.entryText;
+			this.entryText = lines.filter(x => typeof x == "string");
+		}
+		this.entryText = meta.entryText;
+
 		ctx.drawImage(img, 0, 0);
 		const data = ctx.getImageData(0, 0, img.width, img.height);
 		this.data = data.data;
@@ -71,7 +82,12 @@ class LevelData {
 		/** @type string */
 		this.groundColor = meta.colors.ground;
 
-		const specialSpecs = meta.specials;
+		/** @type Map<number, any> */
+		const specialSpecs = new Map();
+		for (const i in meta.specials) {
+			const id = parseInt(i, 16);
+			specialSpecs.set(id, meta.specials[i]);
+		}
 
 		/** @type {Special[]} */
 		this.specials = [];
@@ -81,9 +97,9 @@ class LevelData {
 				// FFxxFFFF represents specials
 				if (data[0] == 0xff && data[2] == 0xff && data[3] == 0xff) {
 					const id = data[1];
-					const spec = specialSpecs[id];
+					const spec = specialSpecs.get(id);
 					if (!spec) {
-						console.warn("Unknown spec:", id);
+						console.warn("Unknown spec: hex", id.toString(16));
 						continue;
 					}
 
@@ -254,6 +270,13 @@ class Game {
 
 		/** @type {number[]} */
 		this.depthBuffer = new Array(SCREEN_WIDTH).fill(0);
+
+		if (level.entryText) {
+			this.textOverlay = {
+				timer: 8,
+				lines: level.entryText,
+			};
+		}
 	}
 
 	/**
@@ -388,12 +411,15 @@ class Game {
 		this.ctx.fillText(status, 5, 13);
 
 		if (this.textOverlay) {
-			const text = this.textOverlay.text;
-			this.ctx.font = "30px Arial";
-			this.ctx.fillStyle = "white";
-			this.ctx.fillText(text, 4, 42);
-			this.ctx.fillStyle = "black";
-			this.ctx.fillText(text, 5, 43);
+			let y = 42;
+			for (const line of this.textOverlay.lines) {
+				this.ctx.font = "30px Arial";
+				this.ctx.fillStyle = "white";
+				this.ctx.fillText(line, 4, y);
+				this.ctx.fillStyle = "black";
+				this.ctx.fillText(line, 5, y + 1);
+				y += 30;
+			}
 		}
 	}
 

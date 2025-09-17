@@ -53,8 +53,6 @@ function loadLevel(name, entryName = "default") {
 		gamesByLevelName.clear();
 	}
 
-	console.log("Load", name, "@", entryName);
-
 	const oldGame = game;
 
 	/** @type {Player?} */
@@ -65,6 +63,7 @@ function loadLevel(name, entryName = "default") {
 
 	const existingGame = gamesByLevelName.get(name);
 	if (existingGame) {
+		console.log("Resume", name, "@", entryName);
 		const entry = existingGame.levelEntries.get(entryName);
 		if (!entry) {
 			console.warn("Missing level entry:", entryName);
@@ -80,6 +79,7 @@ function loadLevel(name, entryName = "default") {
 	}
 
 	game = null;
+	console.log("Load", name, "@", entryName);
 	loadLevelFromURL(`levels/${name}`).then(level => {
 		game = new Game(canvasEl, level, keys, loadLevel);
 		gamesByLevelName.set(name, game);
@@ -90,7 +90,7 @@ function loadLevel(name, entryName = "default") {
 			return;
 		}
 
-		if (oldGame) {
+		if (oldGame && !game.textOverlay) {
 			game.textOverlay = oldGame.textOverlay;
 		}
 		placePlayerAtEntry(game.player, entry, oldPlayer);

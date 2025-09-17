@@ -30,14 +30,14 @@ class LevelTransition {
 				if (item < 0) {
 					game.textOverlay = {
 						timer: 5,
-						text: "Need " + this.requires,
+						lines: ["Need " + this.requires],
 					};
 					return;
 				}
 
 				game.textOverlay = {
 					timer: 5,
-					text: "Used " + this.requires,
+					lines: ["Used " + this.requires],
 				};
 				game.player.inventory.splice(item, 1);
 				this.requires = null;

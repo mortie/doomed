@@ -1,0 +1,17 @@
+{
+	"colors": {
+		"sky": "cyan",
+		"ground": "gray"
+	},
+	"entryText": [
+		"Good job!",
+		"You stole the spectral core.",
+		"Thanks for playing!"
+	],
+	"specials": {
+		"00": {
+			"type": "entry",
+			"angle": 0
+		}
+	}
+}

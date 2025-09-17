@@ -4,34 +4,34 @@
 		"ground": "#2e2c28"
 	},
 	"specials": {
-		"0": {
+		"00": {
 			"type": "entry",
 			"name": "main-gate"
 		},
-		"1": {
+		"01": {
 			"type": "entry",
 			"name": "castle-ladder-1",
 			"angle": 180
 		},
-		"2": {
+		"02": {
 			"type": "entry",
 			"name": "castle-hallway-1"
 		},
 
-		"32": "zomboid",
+		"20": "zomboid",
 
-		"64": {
+		"40": {
 			"type": "level-transition",
 			"to": "intro",
 			"entry": "castle-gate"
 		},
-		"65": {
+		"41": {
 			"type": "level-transition",
 			"to": "rooftop",
 			"entry": "castle-ladder-1",
 			"sprite": "ladder"
 		},
-		"66": {
+		"42": {
 			"type": "level-transition",
 			"to": "castle02",
 			"entry": "castle-hallway-1",

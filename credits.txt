@@ -20,3 +20,8 @@ Skull:
 scofanogd
 https://opengameart.org/content/pixel-skulls
 License: CC0
+
+Chopper:
+Nikolay (knik1985)
+https://opengameart.org/content/helicopter-3
+License: CC-BY 3.0

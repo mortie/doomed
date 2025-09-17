@@ -27,7 +27,7 @@ class Pickup {
 			this.dead = true;
 			game.textOverlay = {
 				timer: 5,
-				text: "Picked up " + this.name,
+				lines: ["Picked up " + this.name],
 			};
 		}
 	}

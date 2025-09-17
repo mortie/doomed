@@ -4,14 +4,19 @@
 		"ground": "#2e2c28"
 	},
 	"specials": {
-		"0": {
+		"00": {
 			"type": "entry",
 			"name": "castle-hallway-1"
 		},
 
-		"32": "zomboid",
+		"20": "zomboid",
+		"21": {
+			"type": "pickup",
+			"sprite": "spectral-core",
+			"name": "spectral core"
+		},
 
-		"64": {
+		"40": {
 			"type": "level-transition",
 			"to": "castle01",
 			"entry": "castle-hallway-1"

@@ -4,24 +4,24 @@
 		"ground": "#63552f"
 	},
 	"specials": {
-		"0": {
+		"00": {
 			"type": "entry",
 			"name": "castle-ladder-1",
 			"angle": 180
 		},
 
-		"32": "zomboid",
-		"33": {
+		"20": "zomboid",
+		"21": {
 			"type": "sprite",
 			"sprite": "skull-banner"
 		},
-		"34": {
+		"22": {
 			"type": "pickup",
-			"sprite": "blue-orb",
+			"sprite": "blue-key",
 			"name": "blue key"
 		},
 
-		"64": {
+		"40": {
 			"type": "level-transition",
 			"to": "castle01",
 			"entry": "castle-ladder-1",

@@ -89,7 +89,7 @@ class StaticSprite {
 	 * @param {number} tx
 	 * @param {number} ty
 	 */
-	constructor(sheet, tx, ty) {
+	constructor(sheet, tx = 0, ty = 0) {
 		this.sheet = sheet;
 		this.tx = tx;
 		this.ty = ty;

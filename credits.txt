@@ -1,0 +1,22 @@
+Asset Credits
+=============
+
+Rotating orbs:
+Jordan Irwin (AntumDeluge)
+https://opengameart.org/content/rotating-orbs
+License: CC0
+
+Zomboid enemy:
+Paul Zarczynski (Nmn)
+https://opengameart.org/content/monster-mutant-grunt-for-fps-game
+License: CC0
+
+Ladders:
+Jordan Irwin (AntumDeluge)
+https://opengameart.org/content/wooden-stairs-ns
+License: CC-BY 3.0, OGA-BY 3.0
+
+Skull:
+scofanogd
+https://opengameart.org/content/pixel-skulls
+License: CC0

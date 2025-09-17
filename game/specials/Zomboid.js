@@ -7,6 +7,7 @@ class Zomboid {
 		this.x = x;
 		this.y = y;
 		this.dead = false;
+		this.dist = 1;
 
 		/** @type {"idle"|"shooting"|"walking"|"dying"} */
 		this.state = "idle";
@@ -56,6 +57,8 @@ class Zomboid {
 		const dist = Math.hypot(distX, distY);
 		const hit = game.level.raycast(this.x, this.y, distX, distY, dist, dist);
 		const playerVisible = hit == null;
+
+		this.dist = dist * (playerVisible ? 1 : 0.25);
 
 		switch (this.state) {
 		case "idle":
@@ -109,6 +112,7 @@ class Zomboid {
 				const dy = (distY / dist) * 16;
 				game.entities.push(new Projectile(
 					this.x, this.y, dx, dy, 3, this));
+				SHOOT_SOUND.play(this.dist);
 			}
 			break;
 		}
@@ -117,9 +121,12 @@ class Zomboid {
 	hurt() {
 		this.health -= 1;
 		if (this.health <= 0) {
+			ZOMBOID_DEATH_SOUND.play(this.dist);
 			this.state = "dying";
 			this.timer = 5;
 			this.dying = true;
+		} else {
+			ZOMBOID_HURT_SOUND.play(this.dist);
 		}
 	}
 };

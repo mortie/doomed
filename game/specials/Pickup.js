@@ -29,6 +29,7 @@ class Pickup {
 				timer: 5,
 				lines: ["Picked up " + this.name],
 			};
+			PICKUP_SOUND.play(0);
 		}
 	}
 

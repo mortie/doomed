@@ -1,6 +1,12 @@
 const canvasEl = /** @type {HTMLCanvasElement} */ (
 	document.getElementById("canvas"));
 
+let musicTrackPlaying = false;
+const musicTrack = /** @type {HTMLAudioElement} */ (
+	document.createElement("audio"));
+musicTrack.src = "sounds/rally.mp3";
+musicTrack.volume = 0.5;
+
 /** @type {Game | null} */
 let game = null;
 let paused = false;
@@ -8,6 +14,16 @@ let paused = false;
 const keys = new Set();
 
 window.addEventListener("keydown", evt => {
+	if (!musicTrackPlaying) {
+		musicTrackPlaying = true;
+		musicTrack.play().then(() => {
+			musicTrack.loop = true;
+		}).catch(() => {
+			console.log("Music track playing denied");
+			musicTrackPlaying = false;
+		});
+	}
+
 	if (evt.code == "KeyP") {
 		paused = !paused;
 	} else {

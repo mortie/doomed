@@ -5,6 +5,13 @@ const LADDER_SHEET = new SpriteSheet("sprites/ladder.png", 42, 77);
 const SKULL_BANNER_SHEET = new SpriteSheet("sprites/skull-banner.png", 32, 96);
 const CHOPPER_SHEET = new SpriteSheet("sprites/chopper.png", 340, 112);
 
+const ZOMBOID_HURT_SOUND = new Sound("sounds/zomboid-hurt.mp3", 1.5);
+const ZOMBOID_DEATH_SOUND = new Sound("sounds/zomboid-death.mp3", 1.5);
+const PLAYER_HURT_SOUND = new Sound("sounds/player-hurt.mp3");
+const PLAYER_DEATH_SOUND = new Sound("sounds/player-death.mp3");
+const SHOOT_SOUND = new Sound("sounds/shoot.mp3");
+const PICKUP_SOUND = new Sound("sounds/pickup.mp3");
+
 /**
  * @param {string} name
  * @returns {StaticSprite | SpritePlayer}

@@ -60,6 +60,7 @@ class Player {
 			game.entities.push(new Projectile(
 				this.x, this.y, dx * 20, dy * 20, 0, this));
 			this.shootTimeout = 0.5;
+			SHOOT_SOUND.play(0);
 		}
 		this.shootTimeout -= dt;
 
@@ -71,6 +72,9 @@ class Player {
 		if (this.health <= 0) {
 			this.dead = true;
 			this.health = 10;
+			PLAYER_DEATH_SOUND.play(0);
+		} else {
+			PLAYER_HURT_SOUND.play(0);
 		}
 	}
 }

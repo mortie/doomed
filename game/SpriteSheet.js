@@ -32,8 +32,16 @@ class SpriteSheet {
 	 * @param {number} ty
 	 */
 	draw(game, dx, dy, dist, tx, ty) {
+		if (dist < 0.1 || dist > 100) {
+			return;
+		}
+
 		const dw = this.width / dist * SCREEN_HEIGHT / 16;
 		const dh = this.height / dist * SCREEN_HEIGHT / 16;
+
+		// Apply a depth penalty to things nearer the edge of the screen,
+		// since perspective makes things wonky there
+		const penalty = 1 + Math.abs((dx - (SCREEN_WIDTH / 2)) / SCREEN_WIDTH) * 0.2;
 
 		const start = Math.floor(dx - (dw / 2));
 		const end = Math.floor(dx + (dw / 2));
@@ -42,7 +50,7 @@ class SpriteSheet {
 		for (let i = rangeStart; i <= end; ++i) {
 			const obscured = (
 				i < 0 || i >= max || i == end ||
-				game.depthBuffer[i] < dist);
+				game.depthBuffer[i] <= dist * penalty);
 			const prevObscured = i == rangeStart;
 
 			if (obscured && prevObscured) {

@@ -346,8 +346,8 @@ class Game {
 
 		for (let x = 0; x < SCREEN_WIDTH; ++x) {
 			const column = (x / SCREEN_WIDTH) * 2 - 1;
-			const ray_angle = Math.atan2(column, SCREEN_DIST);
-			const angle = ray_angle + player.angle;
+			const rayAngle = Math.atan2(column, SCREEN_DIST);
+			const angle = rayAngle + player.angle;
 
 			const dx = Math.sin(angle);
 			const dy = -Math.cos(angle);
@@ -359,7 +359,7 @@ class Game {
 
 			this.depthBuffer[x] = hit.dist;
 
-			const A = Math.PI / 2 - Math.abs(ray_angle);
+			const A = Math.PI / 2 - Math.abs(rayAngle);
 			const dist = Math.sin(A) * hit.dist;
 			const height = (5 / dist) * SCREEN_HEIGHT;
 			const startY = (SCREEN_HEIGHT - height) / 2;
@@ -387,21 +387,13 @@ class Game {
 			}
 
 			const angle = angleBetweenPositions(player.x, player.y, entity.x, entity.y);
-			const ray_angle = normAngle(angle - player.angle + Math.PI / 2);
-			const x = Math.floor((ray_angle / SCREEN_FOV + 0.5) * SCREEN_WIDTH);
-			if (x < -20 || x >= SCREEN_WIDTH + 20) {
-				continue;
-			}
+			const rayAngle = normAngle(angle - player.angle + Math.PI / 2);
+			const x = ((Math.tan(rayAngle) * SCREEN_DIST + 1) / 2) * SCREEN_WIDTH;
 
-			const real_dist = Math.hypot(player.x - entity.x, player.y - entity.y);
-			/*
-			if (real_dist - 0.25 >= this.depthBuffer[x]) {
-				continue;
-			}
-			*/
+			const realDist = Math.hypot(player.x - entity.x, player.y - entity.y);
 
-			const A = Math.PI / 2 - Math.abs(ray_angle);
-			const dist = Math.sin(A) * real_dist;
+			const A = Math.PI / 2 - Math.abs(rayAngle);
+			const dist = Math.sin(A) * realDist;
 			const d = /** @type {Drawable} */ (entity);
 			renderEntities.push({entity: d, x, dist});
 		}

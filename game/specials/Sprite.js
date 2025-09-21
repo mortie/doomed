@@ -19,14 +19,14 @@ class Sprite {
 	}
 
 	/**
-	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {Game} game
 	 * @param {number} dx
 	 * @param {number} dy
 	 * @param {number} dist
 	 */
-	draw(ctx, dx, dy, dist) {
+	draw(game, dx, dy, dist) {
 		if (this.sprite) {
-			this.sprite.draw(ctx, dx, dy, dist);
+			this.sprite.draw(game, dx, dy, dist);
 		}
 	}
 }

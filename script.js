@@ -122,11 +122,8 @@ setInterval(() => {
 	if (game) {
 		if (!paused) {
 			game.update(1 / 60);
+			game.render();
 		}
-	}
-
-	if (game) {
-		game.render();
 	}
 }, 1000 / 60);
 

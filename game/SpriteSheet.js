@@ -24,22 +24,64 @@ class SpriteSheet {
 	}
 
 	/**
-	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {Game} game
 	 * @param {number} dx
 	 * @param {number} dy
 	 * @param {number} dist
 	 * @param {number} tx
 	 * @param {number} ty
 	 */
-	draw(ctx, dx, dy, dist, tx, ty) {
+	draw(game, dx, dy, dist, tx, ty) {
 		const dw = this.width / dist * SCREEN_HEIGHT / 16;
 		const dh = this.height / dist * SCREEN_HEIGHT / 16;
-		ctx.drawImage(
-			this.img,
-			tx * this.width + 0.25, ty * this.height + 0.25,
-			this.width - 0.5, this.height - 0.5,
-			dx - dw / 2, dy - dh / 2,
-			dw, dh);
+
+		const start = Math.floor(dx - (dw / 2));
+		const end = Math.floor(dx + (dw / 2));
+		const max = game.depthBuffer.length;
+		let rangeStart = start;
+		for (let i = rangeStart; i <= end; ++i) {
+			const obscured = (
+				i < 0 || i >= max || i == end ||
+				game.depthBuffer[i] < dist);
+			const prevObscured = i == rangeStart;
+
+			if (obscured && prevObscured) {
+				// Keep updating range start until we find a non-obscured pixel
+				rangeStart = i + 1;
+				continue;
+			} else if (obscured && !prevObscured) {
+				// Draw the non-obscured section
+				// This is handled later
+			} else if (!obscured && prevObscured) {
+				// The section just became visible?
+				// Keep going until we reach the end of the section
+				continue;
+			} else if (!obscured && !prevObscured) {
+				// Section still visible?
+				// Keep going until we reach the end of the section
+				continue;
+			}
+
+			const startFrac = (rangeStart - start) / dw;
+			const endFrac = (i - start) / dw;
+
+			const sx = tx * this.width + startFrac * this.width;
+			const sy = ty * this.height;
+			const sw = this.width * (endFrac - startFrac);
+			const sh = this.height;
+
+			const ndx = (dx - dw / 2) + dw * startFrac;
+			const ndy = dy - dh / 2;
+			const ndw = dw * (endFrac - startFrac);
+			const ndh = dh;
+
+			game.ctx.drawImage(
+				this.img,
+				sx + 1, sy + 1, sw - 2, sh - 2,
+				ndx, ndy, ndw, ndh);
+
+			rangeStart = i + 1;
+		}
 	}
 }
 
@@ -72,14 +114,14 @@ class SpritePlayer {
 	}
 
 	/**
-	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {Game} game
 	 * @param {number} dx
 	 * @param {number} dy
 	 * @param {number} dist
 	 */
-	draw(ctx, dx, dy, dist) {
+	draw(game, dx, dy, dist) {
 		const tile = this.sequence[this.index];
-		this.sheet.draw(ctx, dx, dy, dist, tile[0], tile[1]);
+		this.sheet.draw(game, dx, dy, dist, tile[0], tile[1]);
 	}
 }
 
@@ -101,12 +143,12 @@ class StaticSprite {
 	update(_dt) {}
 
 	/**
-	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {Game} game
 	 * @param {number} dx
 	 * @param {number} dy
 	 * @param {number} dist
 	 */
-	draw(ctx, dx, dy, dist) {
-		this.sheet.draw(ctx, dx, dy, dist, this.tx, this.ty);
+	draw(game, dx, dy, dist) {
+		this.sheet.draw(game, dx, dy, dist, this.tx, this.ty);
 	}
 }

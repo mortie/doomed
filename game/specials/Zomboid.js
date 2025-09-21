@@ -25,13 +25,13 @@ class Zomboid {
 	}
 
 	/**
-	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {Game} game
 	 * @param {number} dx
 	 * @param {number} dy
 	 * @param {number} dist
 	 */
-	draw(ctx, dx, dy, dist) {
-		this.sprites[this.state].draw(ctx, dx, dy, dist);
+	draw(game, dx, dy, dist) {
+		this.sprites[this.state].draw(game, dx, dy, dist);
 	}
 
 	/**
@@ -118,7 +118,10 @@ class Zomboid {
 		}
 	}
 
-	hurt() {
+	/**
+	 * @param {Game} _
+	 */
+	hurt(_) {
 		this.health -= 1;
 		if (this.health <= 0) {
 			ZOMBOID_DEATH_SOUND.play(this.dist);

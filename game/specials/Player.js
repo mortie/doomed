@@ -67,7 +67,10 @@ class Player {
 		moveAndSlide(game, this, this.vx * dt, this.vy * dt);
 	}
 
-	hurt() {
+	/**
+	 * @param {Game} _
+	 */
+	hurt(_) {
 		this.health -= 1;
 		if (this.health <= 0) {
 			this.dead = true;

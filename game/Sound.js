@@ -30,7 +30,6 @@ class Sound {
 			return;
 		}
 
-		console.log("volume", vol);
 		el.volume = vol;
 		el.onended = () => {
 			this.elements.push(el);

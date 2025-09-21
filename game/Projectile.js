@@ -19,13 +19,13 @@ class Projectile {
 	}
 
 	/**
-	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {Game} game
 	 * @param {number} dx
 	 * @param {number} dy
 	 * @param {number} dist
 	 */
-	draw(ctx, dx, dy, dist) {
-		this.sprite.draw(ctx, dx, dy, dist);
+	draw(game, dx, dy, dist) {
+		this.sprite.draw(game, dx, dy, dist);
 	}
 
 	/**
@@ -46,7 +46,7 @@ class Projectile {
 
 			const dist = Math.hypot(this.x - entity.x, this.y - entity.y);
 			if (dist < 2) {
-				entity.hurt();
+				entity.hurt(game);
 				this.dead = true;
 				return;
 			}

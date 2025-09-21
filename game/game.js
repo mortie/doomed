@@ -7,14 +7,20 @@ const BLACK = new Uint8ClampedArray([0, 0, 0, 0xff]);
 const SCREEN_DIST = 1.0 / Math.tan(SCREEN_FOV / 2);
 
 /**
+ * @typedef {function(Game, number, number, number): void} DrawFunc
+ * @typedef {function(Game, number): void} UpdateFunc
+ * @typedef {function(Game): void} HurtFunc
+ */
+
+/**
  * @typedef {Object} Entity
  * @property {number} x
  * @property {number} y
  * @property {boolean} [dead]
  * @property {boolean} [dying]
- * @property {function} [update]
- * @property {function} [draw]
- * @property {function} [hurt]
+ * @property {UpdateFunc} [update]
+ * @property {DrawFunc} [draw]
+ * @property {HurtFunc} [hurt]
  */
 
 /**
@@ -363,7 +369,7 @@ class Game {
 
 		/**
 		 * @typedef {Object} Drawable
-		 * @property {function} draw
+		 * @property {DrawFunc} draw
 		 */
 
 		/**
@@ -383,14 +389,16 @@ class Game {
 			const angle = angleBetweenPositions(player.x, player.y, entity.x, entity.y);
 			const ray_angle = normAngle(angle - player.angle + Math.PI / 2);
 			const x = Math.floor((ray_angle / SCREEN_FOV + 0.5) * SCREEN_WIDTH);
-			if (x < 0 || x >= SCREEN_WIDTH) {
+			if (x < -20 || x >= SCREEN_WIDTH + 20) {
 				continue;
 			}
 
 			const real_dist = Math.hypot(player.x - entity.x, player.y - entity.y);
+			/*
 			if (real_dist - 0.25 >= this.depthBuffer[x]) {
 				continue;
 			}
+			*/
 
 			const A = Math.PI / 2 - Math.abs(ray_angle);
 			const dist = Math.sin(A) * real_dist;
@@ -400,7 +408,7 @@ class Game {
 
 		renderEntities.sort((a, b) => b.dist - a.dist);
 		for (const r of renderEntities) {
-			r.entity.draw(this.ctx, r.x, SCREEN_HEIGHT / 2, r.dist);
+			r.entity.draw(this, r.x, SCREEN_HEIGHT / 2, r.dist);
 		}
 
 		const status = `HP: ${this.player.health}`;
